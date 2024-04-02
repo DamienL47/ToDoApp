@@ -3,7 +3,6 @@ import { StyleSheet } from "react-native";
 export const s = StyleSheet.create({
   img: {
     width: 170,
-    resizeMode: "contain",
   },
   subtitle: {
     marginTop: -20,

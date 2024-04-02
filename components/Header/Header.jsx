@@ -5,7 +5,7 @@ import { s } from "./Header.style";
 export function Header() {
   return (
     <>
-      <Image style={s.img} source={logo} />
+      <Image style={s.img} source={logo} resizeMode="contain" />
       <Text style={s.subtitle}>Tu as probablement des trucs à faire.</Text>
     </>
   );
