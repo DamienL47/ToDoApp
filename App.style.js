@@ -12,6 +12,9 @@ export const s = StyleSheet.create({
   body: {
     flex: 5,
   },
+  cardItem: {
+    marginBottom: 20,
+  },
   footer: {
     height: 70,
   },
