@@ -1,24 +1,22 @@
-import { Alert, ScrollView, Text, TextInput, View } from "react-native";
-import backgroundImage from "./assets/background.png";
+import { Alert, ScrollView, View } from "react-native";
+// import backgroundImage from "./assets/background.png";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { s } from "./App.style";
 import { Header } from "./components/Header/Header";
 import { CardToDo } from "./components/CardToDo/CardToDo";
 import { useState } from "react";
 import { TabBottomMenu } from "./components/TabBottomMenu/TabBottomMenu";
-import { UpdateTodo } from "./components/UpdateTodo/UpdateTodo";
+import { ButtonAdd } from "./components/ButtonAdd/ButtonAdd";
+import Dialog from "react-native-dialog";
+import uuid from "react-native-uuid";
 
 export default function App() {
-  const [todoList, setTodoList] = useState([
-    { id: 1, title: "Appeler maman", isCompleted: true },
-    { id: 2, title: "Appeler papa", isCompleted: false },
-    { id: 3, title: "Appeler mami", isCompleted: false },
-    { id: 4, title: "Appeler papi", isCompleted: true },
-    { id: 5, title: "Appeler tati", isCompleted: false },
-    { id: 6, title: "Appeler tonton", isCompleted: false },
-  ]);
+  const [todoList, setTodoList] = useState([]);
   const [selectedTabName, setSelectedTabName] = useState("all");
+  const [isAddDialogVisible, setIsAddDialogVisible] = useState(false);
+  const [inputValue, setInputValue] = useState("");
   const [update, setUpdate] = useState(false);
+  const [idTodo, setIdTodo] = useState("");
 
   function getFilteredList() {
     switch (selectedTabName) {
@@ -48,21 +46,35 @@ export default function App() {
     setTodoList(updatedTodoList);
   }
 
-  function deleteTodo(todoToDelete) {
+  function updateThisTodo() {
+    const updateTodo = {
+      ...idTodo,
+      title: inputValue,
+    };
+    const todoListNew = todoList.filter((todo) => todo.id !== updateTodo.id);
+    setTodoList([...todoListNew, updateTodo]);
+    setIsAddDialogVisible(false);
+    setUpdate(false);
+  }
+
+  function deleteTodo(todoToDeleteOrUpdate) {
     Alert.alert("Suppression", "Supprimer cette tâche ?", [
       {
         text: "Supprimer",
         style: "destructive",
         onPress: () => {
-          setTodoList(todoList.filter((todo) => todo.id !== todoToDelete.id));
+          setTodoList(
+            todoList.filter((todo) => todo.id !== todoToDeleteOrUpdate.id)
+          );
         },
       },
       {
         text: "Modifier",
         style: "default",
-        onPress: (todo) => {
+        onPress: () => {
           setUpdate(true);
-          return <UpdateTodo todo={todo} />;
+          setIdTodo(todoToDeleteOrUpdate);
+          setIsAddDialogVisible(true);
         },
       },
     ]);
@@ -76,6 +88,20 @@ export default function App() {
     ));
   }
 
+  function addTodo() {
+    const newTodo = {
+      id: uuid.v4(),
+      title: inputValue,
+      isCompleted: false,
+    };
+    setTodoList([...todoList, newTodo]);
+    setIsAddDialogVisible(false);
+  }
+
+  function showDialog() {
+    setIsAddDialogVisible(true);
+  }
+
   return (
     <>
       <SafeAreaProvider>
@@ -85,9 +111,9 @@ export default function App() {
           </View>
 
           <View style={s.body}>
-            {update && <UpdateTodo />}
             <ScrollView>{renderTodoList()}</ScrollView>
           </View>
+          <ButtonAdd onPress={showDialog} />
         </SafeAreaView>
       </SafeAreaProvider>
 
@@ -96,6 +122,39 @@ export default function App() {
         onPress={setSelectedTabName}
         selectedTabName={selectedTabName}
       />
+      {update ? (
+        <Dialog.Container
+          visible={isAddDialogVisible}
+          onBackdropPress={() => setIsAddDialogVisible(false)}
+        >
+          <Dialog.Title> Modifier une Tâche </Dialog.Title>
+          <Dialog.Description>
+            Choisi un nouveau nom pour la tâche
+          </Dialog.Description>
+          <Dialog.Input onChangeText={setInputValue} />
+          <Dialog.Button
+            label="Modifier"
+            onPress={updateThisTodo}
+            disabled={inputValue.trim().length === 0}
+          />
+        </Dialog.Container>
+      ) : (
+        <Dialog.Container
+          visible={isAddDialogVisible}
+          onBackdropPress={() => setIsAddDialogVisible(false)}
+        >
+          <Dialog.Title> Créer une Tâche </Dialog.Title>
+          <Dialog.Description>
+            Choisi un nom pour la nouvelle tâche
+          </Dialog.Description>
+          <Dialog.Input onChangeText={setInputValue} />
+          <Dialog.Button
+            label="Créer"
+            onPress={addTodo}
+            disabled={inputValue.trim().length === 0}
+          />
+        </Dialog.Container>
+      )}
     </>
   );
 }

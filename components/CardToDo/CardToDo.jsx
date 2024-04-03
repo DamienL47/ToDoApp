@@ -17,6 +17,7 @@ export function CardToDo({ todo, onPress, onLongPress }) {
       >
         {todo.title}
       </Text>
+
       {todo.isCompleted && <Image style={s.check} source={check} />}
     </TouchableOpacity>
   );
