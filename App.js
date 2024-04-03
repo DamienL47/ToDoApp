@@ -1,5 +1,4 @@
 import { Alert, ScrollView, View } from "react-native";
-// import backgroundImage from "./assets/background.png";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { s } from "./App.style";
 import { Header } from "./components/Header/Header";
